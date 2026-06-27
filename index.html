@@ -395,6 +395,130 @@
             color: var(--dark);
         }
 
+        .project-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .install-command {
+            display: block;
+            margin: 0 0 18px;
+            padding: 10px 12px;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 8px;
+            background: rgba(10, 14, 39, 0.65);
+            color: #d7f8ff;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        /* Contact */
+        .contact-wrap {
+            display: grid;
+            grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
+            gap: 24px;
+        }
+
+        .contact-panel,
+        .contact-form {
+            padding: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        .contact-panel h3 {
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-size: 1.45rem;
+        }
+
+        .contact-panel p {
+            color: var(--text-muted);
+        }
+
+        .contact-links {
+            display: grid;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .contact-links a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .field-group {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .contact-form label {
+            display: grid;
+            gap: 7px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 8px;
+            outline: none;
+            background: rgba(10, 14, 39, 0.72);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12);
+        }
+
+        .contact-form textarea {
+            min-height: 145px;
+            resize: vertical;
+        }
+
+        .contact-submit {
+            width: fit-content;
+            padding: 10px 20px;
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            background: var(--primary);
+            color: var(--dark);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .contact-status {
+            min-height: 22px;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .bot-field {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
         /* Skills */
         .skills-container {
             display: grid;
@@ -579,6 +703,7 @@
             .subtitle { font-size: 1.2rem; }
             nav { gap: 15px; }
             .profile-photo { width: 140px; height: 140px; font-size: 60px; }
+            .contact-wrap, .field-group { grid-template-columns: 1fr; }
         }
     </style>
     <script>
@@ -609,6 +734,7 @@
             <a href="#projects">Projects</a>
             <a href="#skills">Skills</a>
             <a href="#articles">Articles</a>
+            <a href="#contact">Contact</a>
             <a href="#cv">CV</a>
         </nav>
     </header>
@@ -637,9 +763,13 @@
                     <div class="project-icon-overlay">🧠</div>
                     <div class="project-content">
                         <h3>ContextVault</h3>
-                        <p>Local-first context platform for AI chats and coding agents. Captures browser conversations across ChatGPT, Claude, Gemini, and more, plus terminal sessions through Vault Terminal. Stores everything locally and exports portable Markdown or ZIP.</p>
-                        <a href="https://github.com/aliabdm/ContextVault" target="_blank">View on GitHub →</a>
-                        <a href="https://context-vault-two.vercel.app" target="_blank">Live Demo →</a>
+                        <p>Local-first context platform combining a multi-LLM browser extension with an npm CLI and Unified Context Engine for searchable project memory.</p>
+                        <code class="install-command">npx @aliabdm/contextvault init</code>
+                        <div class="project-links">
+                            <a href="https://github.com/aliabdm/ContextVault" target="_blank" rel="noreferrer">GitHub →</a>
+                            <a href="https://context-vault-two.vercel.app" target="_blank" rel="noreferrer">Live Demo →</a>
+                            <a href="https://www.npmjs.com/package/@aliabdm/contextvault" target="_blank" rel="noreferrer">npm →</a>
+                        </div>
                     </div>
                 </div>
                 
@@ -767,6 +897,47 @@
             <h2>Latest Articles</h2>
             <div class="loading" id="articles-loading">📚 Loading articles from Medium...</div>
             <div class="articles-grid" id="articles-container"></div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact</h2>
+            <div class="contact-wrap">
+                <div class="contact-panel">
+                    <h3>Have a system, product, or AI idea?</h3>
+                    <p>Send me a concise note about the problem, project, or opportunity.</p>
+                    <div class="contact-links">
+                        <a href="mailto:aliabdm@gmail.com">aliabdm@gmail.com</a>
+                        <a href="https://www.linkedin.com/in/mohammad-ali-abdul-wahed-1533b9171/" target="_blank" rel="noreferrer">LinkedIn →</a>
+                    </div>
+                </div>
+
+                <form class="contact-form" id="contactForm" data-rendered-at="">
+                    <label class="bot-field" aria-hidden="true">
+                        Website
+                        <input type="text" name="website" tabindex="-1" autocomplete="off">
+                    </label>
+                    <div class="field-group">
+                        <label>
+                            Name
+                            <input type="text" name="name" autocomplete="name" maxlength="80" required>
+                        </label>
+                        <label>
+                            Email
+                            <input type="email" name="email" autocomplete="email" required>
+                        </label>
+                    </div>
+                    <label>
+                        Subject
+                        <input type="text" name="subject" maxlength="120" required>
+                    </label>
+                    <label>
+                        Message
+                        <textarea name="message" maxlength="1800" required></textarea>
+                    </label>
+                    <button class="contact-submit" type="submit">Send Message</button>
+                    <p class="contact-status" id="contactStatus" aria-live="polite"></p>
+                </form>
+            </div>
         </section>
 
         <section id="cv">
@@ -925,6 +1096,50 @@
         }
 
         fetchArticles();
+
+        function initContactForm() {
+            const form = document.getElementById('contactForm');
+            const status = document.getElementById('contactStatus');
+            if (!form || !status) return;
+
+            form.dataset.renderedAt = String(Date.now());
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                if (!form.reportValidity()) return;
+
+                const data = new FormData(form);
+                const website = String(data.get('website') || '').trim();
+                const message = String(data.get('message') || '').trim();
+                const elapsed = Date.now() - Number(form.dataset.renderedAt || Date.now());
+
+                if (website) {
+                    status.textContent = 'Message ready.';
+                    form.reset();
+                    return;
+                }
+
+                if (elapsed < 2500) {
+                    status.textContent = 'Please review your message, then send again.';
+                    return;
+                }
+
+                if ((message.match(/https?:\/\//gi) || []).length > 2 || /<[^>]+>/.test(message)) {
+                    status.textContent = 'Please use fewer links and plain text only.';
+                    return;
+                }
+
+                const name = String(data.get('name') || '').trim();
+                const email = String(data.get('email') || '').trim();
+                const subject = String(data.get('subject') || '').trim();
+                const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+
+                status.textContent = 'Opening your email app...';
+                window.location.href = `mailto:aliabdm@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            });
+        }
+
+        initContactForm();
 
         // Smooth Scroll
         document.querySelectorAll('nav a').forEach(anchor => {
