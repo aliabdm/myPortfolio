@@ -1103,7 +1103,7 @@
             if (!form || !status) return;
 
             form.dataset.renderedAt = String(Date.now());
-            form.addEventListener('submit', (event) => {
+            form.addEventListener('submit', async (event) => {
                 event.preventDefault();
 
                 if (!form.reportValidity()) return;
@@ -1129,13 +1129,34 @@
                     return;
                 }
 
-                const name = String(data.get('name') || '').trim();
-                const email = String(data.get('email') || '').trim();
-                const subject = String(data.get('subject') || '').trim();
-                const body = `Name: ${name}\nEmail: ${email}\n\n${message}`;
+                status.textContent = 'Sending...';
 
-                status.textContent = 'Opening your email app...';
-                window.location.href = `mailto:aliabdm@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                try {
+                    const body = {
+                        name: data.get('name'),
+                        email: data.get('email'),
+                        subject: data.get('subject'),
+                        message: data.get('message'),
+                        website: data.get('website'),
+                    };
+
+                    const res = await fetch('/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+
+                    const json = await res.json();
+
+                    if (json.ok) {
+                        status.textContent = 'Message sent successfully!';
+                        form.reset();
+                    } else {
+                        status.textContent = json.error || 'Failed to send.';
+                    }
+                } catch (err) {
+                    status.textContent = 'Network error. Please try again.';
+                }
             });
         }
 
