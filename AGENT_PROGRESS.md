@@ -3,6 +3,62 @@
 Last updated: 2026-06-27
 Branch: `main`
 
+## Visual Cleanup Preview - In Progress
+
+### Objective
+
+- Reduce the generic AI-generated visual feel without removing the voice welcome overlay or changing any hero copy.
+- Preserve the user's newly updated resume PDF exactly as provided.
+- Produce and verify a local preview only; do not commit or push until the user approves it.
+
+### Plan
+
+1. Audit the current palette, background animation, gradients, emoji usage, skill percentages, and project-card styling.
+2. Keep the welcome voice experience and hero wording/functionality unchanged.
+3. Replace the cyan/purple visual language with a restrained neutral palette and one green accent.
+4. Reduce background particles and glow intensity without deleting the animation.
+5. Simplify project, skill, article, contact, and CV surfaces while preserving their content and behavior.
+6. Remove visible percentage claims from skill presentation while preserving the skill list.
+7. Run local desktop/mobile visual verification and Contact Form regression checks.
+8. Leave all changes uncommitted and unpushed for user review.
+
+### Protected Existing Changes
+
+- `my_resume_mohammad_ali_abd_al-wahed.pdf` is a user-provided update and must not be modified or reverted.
+- Voice welcome overlay must remain.
+- Hero text must remain unchanged.
+
+### Current Stop
+
+- Local visual implementation completed but not committed or pushed.
+- Preserved the voice welcome overlay and all hero wording.
+- Changed the page palette from cyan/purple gradients to charcoal, neutral text, and one restrained green accent.
+- Reduced animated background particles from 50 to 16 and lowered their visual intensity.
+- Flattened cards, reduced radii and hover movement, removed glass blur, and removed visible project emoji badges.
+- Removed visible skill percentages and progress bars while preserving every skill name.
+- Simplified navigation, project links, inputs, and CV download styling.
+- Preserved the user's modified resume PDF without editing or reverting it.
+- Docker preview served successfully at `http://127.0.0.1:8092/` with HTTP 200.
+- Desktop verification passed: voice overlay closes, hero title is unchanged, 16 particles render, project emoji badges and skill bars are hidden, and no horizontal overflow or runtime errors were found.
+- Mobile verification passed at a 390x844 target with a single-column Contact section and no horizontal overflow or runtime errors.
+- Contact Form regression passed and reached `Opening your email app...` with valid test data.
+- Preview remains local, uncommitted, and unpushed for user review.
+- User rejected the first green refinement because the voice overlay and page used conflicting palettes.
+- Reworked the preview into one cohesive monochrome system: `#0d0d0d` background, `#141414` surfaces, off-white text, and one muted red accent (`#c65b5b`).
+- Removed all computed gradients and glow from the body, voice avatar, hero profile, heading, project cards, and CV action while preserving the voice feature and hero wording.
+- Removed decorative emoji from About, loading, CV, and footer labels; retained the welcome robot and hero developer avatar as the two intentional identity elements.
+- Verified matching overlay/body/card surfaces, no runtime errors, and no horizontal overflow after the second refinement.
+- Second preview remains local, uncommitted, and unpushed.
+- Added full-width off-white editorial bands for About, Skills, and Contact after user feedback that the monochrome version remained too dark.
+- Projects, Articles, CV, hero, and footer remain graphite, producing a consistent light/dark page rhythm instead of adding more accent colors.
+- Light-band typography, skill items, contact panels, inputs, and focus states were adapted for accessible dark-on-light contrast.
+- Verified the three bands compute to the same `#f0eee8` background, retain the muted red accent, introduce no horizontal overflow, and produce no runtime errors.
+- Third preview remains local, uncommitted, and unpushed.
+- User found the first light bands too abrupt against the graphite sections.
+- Replaced hard light/dark cuts with 72px neutral tonal transitions from graphite to warm gray and back; removed the experimental angled separators.
+- Verified the transitions render on both sides of each light band, the document width matches the viewport, and no runtime errors occur.
+- Fourth preview remains local, uncommitted, and unpushed.
+
 ## Objective
 
 - Remove the uncommitted portfolio redesign and generated branding assets.
