@@ -916,6 +916,10 @@
                         Website
                         <input type="text" name="website" tabindex="-1" autocomplete="off">
                     </label>
+                    <label class="bot-field" aria-hidden="true">
+                        Leave empty
+                        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+                    </label>
                     <div class="field-group">
                         <label>
                             Name
@@ -1138,6 +1142,7 @@
                         subject: data.get('subject'),
                         message: data.get('message'),
                         website: data.get('website'),
+                        _gotcha: data.get('_gotcha'),
                     };
 
                     const res = await fetch('/api/contact', {
