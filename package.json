@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/aliabdm/myPortfolio#readme",
   "dependencies": {
-    "@vercel/analytics": "^2.0.1"
+    "@vercel/analytics": "^2.0.1",
+    "nodemailer": "^6.9.0"
   }
 }

@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -23,35 +25,37 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid email' });
   }
 
-  // Malicious content check
   const linkCount = (message.match(/https?:\/\//gi) || []).length;
   if (linkCount > 2 || /<[^>]+>/.test(message)) {
     return res.status(400).json({ error: 'Too many links or HTML detected' });
   }
 
   try {
-    const formData = new URLSearchParams({
-      name,
-      email,
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Portfolio Contact" <${process.env.SMTP_USER}>`,
+      to: 'aliabdm@gmail.com',
+      replyTo: email,
       subject: `[Portfolio] ${subject}`,
-      message,
+      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+      html: `<p><strong>Name:</strong> ${name}</p>
+             <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+             <hr>
+             <p>${message.replace(/\n/g, '<br>')}</p>`,
     });
 
-    const response = await fetch('https://formsubmit.co/ajax/aliabdm@gmail.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString(),
-    });
-
-    const result = await response.json();
-
-    if (result.success === 'true' || result.success === true) {
-      return res.status(200).json({ ok: true });
-    }
-
-    throw new Error(result.message || 'Formsubmit error');
+    res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('Contact error:', err);
-    return res.status(500).json({ error: 'Failed to send message. Please try again later.' });
+    console.error('Email error:', err);
+    res.status(500).json({ error: 'Failed to send message' });
   }
 }
