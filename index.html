@@ -559,8 +559,72 @@
         /* Articles */
         .articles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .article-carousel {
+            margin-top: 28px;
+        }
+
+        .article-carousel[hidden] {
+            display: none;
+        }
+
+        .article-carousel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .article-carousel-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .article-carousel-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .article-carousel-controls button {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 50%;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .article-carousel-controls button:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .article-carousel-controls button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .article-page-indicator {
+            min-width: 44px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 900px) {
+            .articles-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 600px) {
+            .articles-grid { grid-template-columns: 1fr; }
+            .article-carousel-header h3 { font-size: 1.1rem; }
         }
 
         .article-card {
@@ -900,7 +964,28 @@
         <section id="articles">
             <h2>Latest Articles</h2>
             <div class="loading" id="articles-loading">📚 Loading articles from Medium...</div>
-            <div class="articles-grid" id="articles-container"></div>
+            <div class="article-carousel" id="medium-carousel" hidden>
+                <div class="article-carousel-header">
+                    <h3>Medium</h3>
+                    <div class="article-carousel-controls">
+                        <button type="button" data-carousel="medium" data-direction="-1" aria-label="Previous Medium articles">‹</button>
+                        <span class="article-page-indicator" id="medium-page" aria-live="polite"></span>
+                        <button type="button" data-carousel="medium" data-direction="1" aria-label="Next Medium articles">›</button>
+                    </div>
+                </div>
+                <div class="articles-grid" id="medium-articles"></div>
+            </div>
+            <div class="article-carousel" id="devto-carousel" hidden>
+                <div class="article-carousel-header">
+                    <h3>Dev.to</h3>
+                    <div class="article-carousel-controls">
+                        <button type="button" data-carousel="devto" data-direction="-1" aria-label="Previous Dev.to articles">‹</button>
+                        <span class="article-page-indicator" id="devto-page" aria-live="polite"></span>
+                        <button type="button" data-carousel="devto" data-direction="1" aria-label="Next Dev.to articles">›</button>
+                    </div>
+                </div>
+                <div class="articles-grid" id="devto-articles"></div>
+            </div>
         </section>
 
         <section id="contact">
@@ -1044,62 +1129,94 @@
         if (skillsSection) observer.observe(skillsSection);
 
 
-        // --- Fetch Articles (Medium ONLY with Image Fallback) ---
+        // --- Fetch Articles (Medium and Dev.to) ---
         async function fetchArticles() {
-            const container = document.getElementById('articles-container');
             const loading = document.getElementById('articles-loading');
 
-            // Default fallback image if Medium image is broken or missing
             const fallbackImage = 'https://placehold.co/600x400/1a1f3a/00d4ff?text=Tech+Article';
+            const articleMarkup = article => {
+                const img = article.image || fallbackImage;
+                const date = article.date ? new Date(article.date) : null;
+                const dateStr = date && !Number.isNaN(date.getTime())
+                    ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '';
+                const cleanDesc = (article.description || '').substring(0, 120);
+                const source = article.source || 'Article';
+
+                return `
+                    <div class="article-card">
+                        <img src="${img}" class="article-image" alt="${article.title}" onerror="this.src='${fallbackImage}'">
+                        <p class="article-date">${source}${dateStr ? ` • ${dateStr}` : ''}</p>
+                        <h3><a href="${article.link}" target="_blank" rel="noopener noreferrer">${article.title}</a></h3>
+                        ${cleanDesc ? `<p class="article-description">${cleanDesc}</p>` : ''}
+                    </div>
+                `;
+            };
+
+            const carousels = {
+                medium: { section: document.getElementById('medium-carousel'), grid: document.getElementById('medium-articles'), indicator: document.getElementById('medium-page'), page: 0 },
+                devto: { section: document.getElementById('devto-carousel'), grid: document.getElementById('devto-articles'), indicator: document.getElementById('devto-page'), page: 0 }
+            };
+
+            const renderCarousel = (name, articles) => {
+                const carousel = carousels[name];
+                const perPage = window.matchMedia('(max-width: 600px)').matches ? 1
+                    : window.matchMedia('(max-width: 900px)').matches ? 2 : 3;
+                const pageCount = Math.max(1, Math.ceil(articles.length / perPage));
+                carousel.page = Math.min(carousel.page, pageCount - 1);
+                const start = carousel.page * perPage;
+
+                carousel.section.hidden = articles.length === 0;
+                carousel.grid.innerHTML = articles.slice(start, start + perPage).map(articleMarkup).join('');
+                carousel.indicator.textContent = `${carousel.page + 1} / ${pageCount}`;
+                carousel.section.querySelectorAll('button[data-direction]').forEach(button => {
+                    const direction = Number(button.dataset.direction);
+                    button.disabled = direction < 0 ? carousel.page === 0 : carousel.page >= pageCount - 1;
+                });
+            };
+
+            document.querySelectorAll('.article-carousel-controls button[data-carousel]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const name = button.dataset.carousel;
+                    const carousel = carousels[name];
+                    const articles = carousel.articles || [];
+                    const perPage = window.matchMedia('(max-width: 600px)').matches ? 1
+                        : window.matchMedia('(max-width: 900px)').matches ? 2 : 3;
+                    const pageCount = Math.max(1, Math.ceil(articles.length / perPage));
+                    carousel.page = Math.max(0, Math.min(pageCount - 1, carousel.page + Number(button.dataset.direction)));
+                    renderCarousel(name, articles);
+                });
+            });
 
             try {
-                // Fetch Medium via rss2json
-                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@aliabdm');
-                const data = await res.json();
+                const res = await fetch('/api/articles');
+                if (!res.ok) throw new Error(`Articles API returned ${res.status}`);
 
-                if (data.status !== 'ok') {
-                    throw new Error('Failed to fetch Medium feed');
+                const articles = await res.json();
+                loading.style.display = 'none';
+                if (!articles || !Array.isArray(articles.Medium) || !Array.isArray(articles['Dev.to'])) {
+                    throw new Error('Unexpected articles response');
+                }
+                if (articles.Medium.length === 0 && articles['Dev.to'].length === 0) {
+                    loading.innerText = 'No articles are available right now. Check my Medium or Dev.to profile for the latest posts.';
+                    loading.style.display = 'block';
+                    return;
                 }
 
-                loading.style.display = 'none';
+                carousels.medium.articles = articles.Medium;
+                carousels.devto.articles = articles['Dev.to'];
+                renderCarousel('medium', articles.Medium);
+                renderCarousel('devto', articles['Dev.to']);
 
-                data.items.forEach(item => {
-                    // Logic to find image or use fallback
-                    let img = item.thumbnail;
-                    
-                    // If no thumbnail, look in content
-                    if (!img || img === "") {
-                        const imgMatch = item.content.match(/<img[^>]+src="([^">]+)"/);
-                        img = imgMatch ? imgMatch[1] : null;
-                    }
-
-                    // If still valid link, check if it's the small avatar (Medium sometimes does this)
-                    // We assume if it's too short or null, use fallback
-                    if (!img) {
-                        img = fallbackImage;
-                    }
-
-                    // Clean Date
-                    const dateStr = new Date(item.pubDate).toLocaleDateString('en-US', {
-                        year: 'numeric', month: 'short', day: 'numeric'
-                    });
-
-                    // Clean Description
-                    const cleanDesc = item.description.replace(/<[^>]*>/g, '').substring(0, 120) + '...';
-
-                    container.innerHTML += `
-                        <div class="article-card">
-                            <img src="${img}" class="article-image" alt="${item.title}" onerror="this.src='${fallbackImage}'">
-                            <p class="article-date">Medium • ${dateStr}</p>
-                            <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-                            <p class="article-description">${cleanDesc}</p>
-                        </div>
-                    `;
+                window.addEventListener('resize', () => {
+                    renderCarousel('medium', carousels.medium.articles);
+                    renderCarousel('devto', carousels.devto.articles);
                 });
 
             } catch (error) {
                 console.error("Error fetching articles:", error);
-                loading.innerText = '⚠️ Check my Medium profile in the footer for latest articles.';
+                loading.style.display = 'block';
+                loading.innerText = '⚠️ Articles are temporarily unavailable. Check my Medium or Dev.to profile for the latest posts.';
             }
         }
 
